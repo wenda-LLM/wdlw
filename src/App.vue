@@ -32,7 +32,7 @@
           </v-card-actions>
       </v-card>
       <v-card elevation="2" v-for="result in results" :loading="result.loading ? 'primary' : false">
-          <v-card-title>{{ result.title }} <v-spacer></v-spacer>
+          <v-card-title>{{ result.title }}
               <v-icon @click="window.copy(result.content)" v-if="result.prompt" color="primary">
                   mdi-content-copy
               </v-icon>
@@ -45,7 +45,7 @@
           </v-card-title>
 
           <v-divider v-if="result.prompt"></v-divider>
-          <v-textarea v-if="result.prompt" v-model="result.content" rows="5" hide-details></v-textarea>
+          <pre v-if="result.prompt" v-text="result.content"></pre>
       </v-card>
       <v-snackbar v-model="b显示提示文本" :timeout="3000" style="white-space: pre-line">{{ s提示文本 }}</v-snackbar>
       <v-dialog v-model="show_dialog" persistent max-width="600px">
@@ -91,6 +91,9 @@
   padding: 10px;
 }
 
+.wdlw .v-card .v-icon {
+    float: right;
+}
 .wdlw .logo-center {
   left: calc(50% - 140px);
   width: 260px;
@@ -212,7 +215,7 @@ window.f生成正文 = async (e) => {
               prompt: "根据主题：" + lw_app.s题目 + "\n对下列段落进行详细的撰写：" + line[1]
           }
           lw_app.results.push(paragraph)
-          await send_raw(paragraph.prompt, '', [], (s) => { paragraph.content = s })
+          await send_raw(paragraph.prompt, '', [], (s) => {alert(s); paragraph.content = s })
           paragraph.loading = false
       } else {
           lw_app.results.push({ title: resp[i], content: "" })   // 保存提纲
@@ -286,9 +289,9 @@ window.copy = (s) => {
       });
 };
 
-if (location.origin.indexOf("4399") > 0 || location.origin.indexOf("65530") > 0)
+if (location.origin.indexOf("4399") > 0 ||location.origin.indexOf("3000") > 0 || location.origin.indexOf("65530") > 0)
     window.send_raw = async (prompt, keyword, QA_history, onmessage = alert) => {
-        const res = await fetch(location.origin.replace("4399", '65530') + "/v1/chat/completions", {
+        const res = await fetch(location.origin.replace("4399", '65530').replace("3000", '65530') + "/v1/chat/completions", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -337,7 +340,6 @@ else
             window.ws.onmessage = function (event) {
                 result = event.data
                 onmessage(result)
-                global_onmessage && global_onmessage(result)
             };
             Object.assign(addition_args, {
                 prompt: prompt,
